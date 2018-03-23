@@ -16,7 +16,7 @@ end
 function [response,status]=gdax_currencies(params)
 url_ext='/currencies';
 header_1=http_createHeader('Content-Type','application/x-www-form-urlencoded');
-url=['https://api-public.sandbox.gdax.com/',url_ext];
+url=['https://api.gdax.com/',url_ext];
 [response,status] = urlread2(url,'GET',{},header_1);
 end
 
@@ -24,10 +24,11 @@ end
 % requests with authentication
 % header & parameters
 function [response,status]=gdax_authenticated(url_ext,parameter,GPD)
-    url='https://api.bitfinex.com';
-    timestamp = num2str(floor((now-datenum('1970', 'yyyy'))*8640000));
+    url='https://api.gdax.com';
+    timestamp = num2str(floor((now-datenum('1970', 'yyyy')-3/24)*86400)); %% my local time is 3 hours forward from GDAX
+    %% server time so everyone individually needs to adjust this according
+    %% to the time difference between local time and GDAX server time. 3 hours forward so "-3/24 " is added.
     requestPath='/orders';
-
     [key,secret,passphrase]=key_secret('gdax');
     url=[url url_ext];
     payload_json=[timestamp,GPD,requestPath,parameter];
