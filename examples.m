@@ -209,9 +209,9 @@ close all
 
 %% % % % % % % % % % % % % % % GDAX
 %% gdax_orders
-[response,status]=main_api_call('gdax','orders',{'size',0.01,'price',0.1,'side','buy','product_id','BTC-USD'});
+% [response,status]=main_api_call('gdax','orders',{'size',0.01,'price',0.1,'side','buy','product_id','BTC-USD'});
 
-
+[response,status]=main_api_call('gdax','accounts',{});
 %% % % % % % % % % % % % % % % BITTREX
 % [response,status]=main_api_call('bittrex','getmarkets',{});
 % [response,status]=main_api_call('bittrex','getcurrencies',{});
