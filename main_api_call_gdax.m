@@ -25,21 +25,26 @@ end
 % header & parameters
 function [response,status]=gdax_authenticated(url_ext,parameter,GPD)
     url='https://api-public.sandbox.gdax.com/';
-    timestamp = num2str(floor((now-datenum('1970', 'yyyy')-3/24)*86400)); %% my local time is 3 hours forward from GDAX
+    timestamp = num2str(floor((now-datenum('1970', 'yyyy')-3/24)*8640000)/100,'%12.2f');%num2str(floor((now-datenum('1970', 'yyyy')-3/24)*8640000)/100,'%12.2f'); %% my local time is 3 hours forward from GDAX
     %% server time so everyone individually needs to adjust this according
     %% to the time difference between local time and GDAX server time. 3 hours forward so "-3/24 " is added.
     [key,secret,passphrase]=key_secret('gdax');
-    secret_64=typecast(org.apache.commons.codec.binary.Base64.decodeBase64(uint8(secret)), 'uint8')';
+%     secret_64=char(org.apache.commons.codec.binary.Base64.decodeBase64(uint8(secret))');
+%     payload_json=[timestamp,GPD,url_ext,parameter];
+%     payload_uint8=uint8(payload_json);
+%     payload=char(org.apache.commons.codec.binary.Base64.encodeBase64(payload_uint8)');
+%     Signature = char(crypto(payload, secret_64, 'HmacSHA384'))
+    secret_64=char(org.apache.commons.codec.binary.Base64.decodeBase64(uint8(secret))');
     payload_json=[timestamp,GPD,url_ext,parameter];
-    payload_uint8=uint8(payload_json);
-    payload=char(org.apache.commons.codec.binary.Base64.encodeBase64(payload_uint8))';
-    Signature = char(crypto(payload, secret, 'HmacSHA256'));
+    SignatureEnc = char(crypto(payload_json, secret_64, 'HmacSHA384'));
+    Signature=char(org.apache.commons.codec.binary.Base64.encodeBase64(uint8(SignatureEnc))');
     header_1=http_createHeader('CB-ACCESS-KEY',key);
     header_2=http_createHeader('CB-ACCESS-SIGN',Signature);
     header_3=http_createHeader('CB-ACCESS-TIMESTAMP',timestamp);
     header_4=http_createHeader('CB-ACCESS-PASSPHRASE',passphrase);
+    header_5=http_createHeader('Content-Type','application/json');
     url=[url url_ext];
-    header=[header_1 header_2 header_3 header_4];
+    header=[header_1 header_2 header_3 header_4 header_5];
     [response,status] = urlread2(url,GPD,'',header);
 end
 % new_order function
@@ -84,7 +89,7 @@ parameter=[parameter,parameters{end-1},'": "',parameters{end},'"}'];
 end
 % accounts function
 function [response,status]=gdax_accounts(params)
-GPD='POST';
+GPD='GET';
 url_ext='accounts';
 [response,status]=gdax_authenticated(url_ext,'',GPD);
 end
